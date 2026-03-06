@@ -45,7 +45,7 @@ const Header = ({
           <Text className="text-xl font-bold text-primary text-center flex-1 mr-8">{title}</Text>
         )}
 
-        {(!title && !showSearch) && <View className="flex-1" />}
+        {(!title && !showLogo) && <View className="flex-1" />}
       </View>
 
       {/* Right */}
