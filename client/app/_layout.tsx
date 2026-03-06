@@ -6,7 +6,7 @@ import '@/global.css';
 export default function RootLayout() {
   return (
     <SafeAreaProvider>
-      <Stack />
+      <Stack screenOptions={{ headerShown: false }} />
     </SafeAreaProvider>
   );
 }
