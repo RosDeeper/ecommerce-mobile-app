@@ -1,12 +1,22 @@
 import { Stack } from "expo-router";
 import { SafeAreaProvider } from "react-native-safe-area-context";
+import { GestureHandlerRootView } from 'react-native-gesture-handler'
+
+import { CartProvider } from "@/context/CartContext";
+import { WishlistProvider } from "@/context/WishlistContext";
 
 import '@/global.css';
 
 export default function RootLayout() {
   return (
-    <SafeAreaProvider>
-      <Stack screenOptions={{ headerShown: false }} />
-    </SafeAreaProvider>
+    <GestureHandlerRootView style={{ flex: 1 }}>
+      <SafeAreaProvider>
+        <CartProvider>
+          <WishlistProvider>
+            <Stack screenOptions={{ headerShown: false }} />
+          </WishlistProvider>
+        </CartProvider>
+      </SafeAreaProvider>
+    </GestureHandlerRootView>
   );
 }
