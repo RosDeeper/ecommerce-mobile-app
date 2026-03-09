@@ -22,17 +22,19 @@ const ProductDetails = () => {
   const [selectedSize, setSelectedSize] = useState<string | null>(null);
   const [activeImageIndex, setActiveImageIndex] = useState<number>(0);
 
-  const { addToCart, cartItems, itemCount } = useCart();
+  const { addToCart, itemCount } = useCart();
   const { toggleWishlist, isInWishlist } = useWishlist();
 
   const fetchProduct = async () => {
-    setProduct(dummyProducts.find((product) => product._id === id) as any);
+    const found = dummyProducts.find((product) => product._id === id);
+
+    setProduct(found || null);
     setLoading(false);
   };
 
   useEffect(() => {
     fetchProduct();
-  }, []);
+  }, [id]);
 
   if (loading) {
     return (
