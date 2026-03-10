@@ -56,7 +56,7 @@ const Profile = () => {
                 />
               </View>
               <Text className="text-primary font-bold text-xl">{user.firstName + " " + user.lastName}</Text>
-              <Text className="text-secondary text-sm">{user.emailAddresses[0].emailAddress}</Text>
+              <Text className="text-secondary text-sm">{user.emailAddresses?.[0]?.emailAddress ?? ''}</Text>
 
               {/* Admin Panel */}
               {user.publicMetadata?.role === 'admin' && (
