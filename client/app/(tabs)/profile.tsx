@@ -1,18 +1,19 @@
 import { View, Text, ScrollView, TouchableOpacity, Image } from "react-native";
-import { useRouter } from "expo-router";
-import { Ionicons } from "@expo/vector-icons";
 import { SafeAreaView } from "react-native-safe-area-context";
+import { Ionicons } from "@expo/vector-icons";
+import { useRouter } from "expo-router";
+import { useClerk } from "@clerk/expo";
 
-import { dummyUser } from "@/assets/assets";
 import Header from "@/components/Header";
 import { COLORS, PROFILE_MENU } from "@/constants";
 
 const Profile = () => {
   const router = useRouter();
 
-  const { user } = { user: dummyUser };
+  const { user, signOut } = useClerk();
 
-  const handleLogout = () => {
+  const handleLogout = async () => {
+    await signOut(); 
     router.replace('/sign-in');
   };
 
