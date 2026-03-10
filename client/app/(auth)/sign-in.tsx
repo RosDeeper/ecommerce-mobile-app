@@ -1,6 +1,7 @@
 import { ActivityIndicator, Pressable, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { type Href, Link, useRouter } from 'expo-router';
+import Toast from 'react-native-toast-message';
 import { Ionicons } from '@expo/vector-icons';
 import { useSignIn } from '@clerk/expo';
 import { useState } from 'react';
@@ -30,7 +31,11 @@ export default function SignInScreen() {
       });
 
       if (error) {
-        console.log('Sign-in error: ', JSON.stringify(error, null, 2));
+        Toast.show({
+          type: 'error',
+          text1: 'Sign In Failed',
+          text2: error.message ?? 'Invalid credentials',
+        });
         return;
       }
 
@@ -44,14 +49,22 @@ export default function SignInScreen() {
         const { error: mfaError } = await signIn.mfa.sendEmailCode();
 
         if (mfaError) {
-          console.error("Send OTP error:", mfaError);
+          Toast.show({
+            type: 'error',
+            text1: 'Verification Error',
+            text2: mfaError.message ?? 'Could not send verification code',
+          });
           return;
         }
 
         setShowEmailCode(true);
       }
-    } catch (err) {
-      console.error("System Error:", err);
+    } catch (err: any) {
+      Toast.show({
+        type: 'error',
+        text1: 'System Error',
+        text2: err?.message ?? 'An unexpected error occurred',
+      });
     } finally {
       setLoading(false);
     }
@@ -66,7 +79,11 @@ export default function SignInScreen() {
       const { error } = await signIn.mfa.verifyEmailCode({ code });
 
       if (error) {
-        console.error("Wrong Verification Code: ", error);
+        Toast.show({
+          type: 'error',
+          text1: 'Verification Failed',
+          text2: error.message ?? 'Invalid code',
+        });
         return;
       }
 
@@ -77,8 +94,12 @@ export default function SignInScreen() {
           },
         });
       }
-    } catch (err) {
-      console.error("Verification Error:", err);
+    } catch (err: any) {
+      Toast.show({
+        type: 'error',
+        text1: 'System Error',
+        text2: err?.message ?? 'Something went wrong',
+      });
     } finally {
       setLoading(false);
     }

@@ -28,8 +28,7 @@ const Checkout = () => {
     const addrList = dummyAddress;
 
     if (addrList.length > 0) {
-      const def = addrList.find((a: any) => a.isDefault || addrList[0]);
-
+      const def = addrList.find((a) => a.isDefault) ?? addrList[0];
       setSelectedAddress(def as Address);
     }
 
