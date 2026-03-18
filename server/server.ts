@@ -7,6 +7,7 @@ import connectDB from './config/db.js';
 import { clerkWebhook } from './controllers/webhooks.js';
 import makeAdmin from './scripts/makeAdmin.js';
 import productRouter from "./routes/productRoutes.js";
+import cartRouter from "./routes/cartRoutes.js";
 
 const app = express();
 
@@ -28,6 +29,7 @@ app.get('/', (req: Request, res: Response) => {
 
 // App route api
 app.use('/api/product', productRouter);
+app.use('/api/cart', cartRouter);
 
 await makeAdmin();
 

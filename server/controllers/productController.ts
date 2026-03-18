@@ -58,7 +58,7 @@ export const createProduct = async (req: Request, res: Response) => {
     // Handle file uploads
     let images: string[] = [];
 
-    if (req.files && (req.files as any).lenght > 0) {
+    if (req.files && (req.files as any).length > 0) {
       const uploadPromise = (req.files as any).map((file: any) => {
         return new Promise((resolve, reject) => {
           const uploadStream = cloudinary.uploader.upload_stream(
@@ -123,7 +123,7 @@ export const updateProduct = async (req: Request, res: Response) => {
       }
     }
 
-    if (req.files && (req.files as any).lenght > 0) {
+    if (req.files && (req.files as any).length > 0) {
       const uploadPromise = (req.files as any).map((file: any) => {
         return new Promise((resolve, reject) => {
           const uploadStream = cloudinary.uploader.upload_stream(
