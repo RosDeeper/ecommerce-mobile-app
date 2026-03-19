@@ -8,6 +8,9 @@ import { clerkWebhook } from './controllers/webhooks.js';
 import makeAdmin from './scripts/makeAdmin.js';
 import productRouter from "./routes/productRoutes.js";
 import cartRouter from "./routes/cartRoutes.js";
+import orderRouter from "./routes/orderRoutes.js";
+import addressRouter from "./routes/addressRoutes.js";
+import adminRouter from "./routes/adminRoutes.js";
 
 const app = express();
 
@@ -30,6 +33,9 @@ app.get('/', (req: Request, res: Response) => {
 // App route api
 app.use('/api/product', productRouter);
 app.use('/api/cart', cartRouter);
+app.use('/api/order', orderRouter);
+app.use('/api/address', addressRouter);
+app.use('/api/admin', adminRouter);
 
 await makeAdmin();
 
