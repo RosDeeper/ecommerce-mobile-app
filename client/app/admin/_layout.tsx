@@ -3,15 +3,14 @@ import { Tabs, useRouter } from "expo-router";
 import { useEffect } from "react";
 import { View, ActivityIndicator, TouchableOpacity, Text } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
+import { useUser } from "@clerk/expo";
 
 import { COLORS } from "@/constants";
-import { dummyUser } from "@/assets/assets";
 
 const AdminLayout = () => {
   const router = useRouter();
 
-  const { user } = { user: dummyUser }
-  const isLoaded = true;
+  const { user, isLoaded } = useUser();
 
   useEffect(() => {
     if (isLoaded && (!user || user.publicMetadata?.role !== "admin")) {

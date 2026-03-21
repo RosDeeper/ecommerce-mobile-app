@@ -4,11 +4,12 @@ import { useEffect, useState } from "react";
 import { useRouter } from "expo-router";
 
 import Header from "@/components/Header";
-import { BANNERS, dummyProducts } from "@/assets/assets";
+import { BANNERS } from "@/assets/assets";
 import { CATEGORIES } from "@/constants";
 import CategoryItem from "@/components/CategoryItem";
 import { Product } from "@/constants/types";
 import ProductCard from "@/components/ProductCard";
+import api from "@/constants/api";
 
 const { width } = Dimensions.get('window');
 
@@ -24,8 +25,20 @@ const Home = () => {
   ];
 
   const fetchProducts = async () => {
-    setProducts(dummyProducts);
-    setLoading(false);
+    try {
+      const { data } = await api.get(
+        '/product',
+      );
+
+      if ( data.success) {
+        setProducts(data.data);
+      }
+
+    } catch (error: any) {
+      console.error(error);
+    } finally {
+      setLoading(false);
+    }
   };
 
   useEffect(() => {
