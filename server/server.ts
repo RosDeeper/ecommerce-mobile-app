@@ -11,6 +11,7 @@ import cartRouter from "./routes/cartRoutes.js";
 import orderRouter from "./routes/orderRoutes.js";
 import addressRouter from "./routes/addressRoutes.js";
 import adminRouter from "./routes/adminRoutes.js";
+import { seedProducts } from "./scripts/seedProducts.js";
 
 const app = express();
 
@@ -24,7 +25,7 @@ app.use(cors());
 app.use(express.json());
 app.use(clerkMiddleware());
 
-const port = process.env.PORT || 3000;
+const port = process.env.PORT || 8080;
 
 app.get('/', (req: Request, res: Response) => {
   res.send('Server is Live!');
@@ -38,6 +39,9 @@ app.use('/api/address', addressRouter);
 app.use('/api/admin', adminRouter);
 
 await makeAdmin();
+
+// Seed dummy products if no products are present
+// await seedProducts(process.env.MONGODB_URI as string);
 
 app.listen(port, () => {
   console.log(`Server is running at http://localhost:${port}`);

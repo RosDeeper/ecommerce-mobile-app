@@ -1,23 +1,39 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import { useRouter } from "expo-router";
 import React, { useEffect, useState } from "react";
 import { FlatList, Text, TouchableOpacity, View, ActivityIndicator, ScrollView, Image } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
+import { useAuth } from "@clerk/expo";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 import { COLORS, getStatusColor } from "@/constants";
 import type { Order } from "@/constants/types";
 import Header from "@/components/Header";
-import { dummyOrders, formatDate } from "@/assets/assets";
+import { formatDate } from "@/assets/assets";
+import api from "@/constants/api";
 
 const Orders = () => {
   const router = useRouter();
+  const { getToken } = useAuth();
 
   const [orders, setOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
 
   const fetchOrders = async () => {
-    setOrders(dummyOrders as any[]);
-    setLoading(false);
+    try {
+      const token = await getToken();
+
+      const { data } = await api.get('/order', {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+
+      setOrders(data.data);
+
+    } catch (error) {
+      console.error('Failed to fetch orders: ', error);
+    } finally {
+      setLoading(false);
+    }
   };
 
   useEffect(() => {

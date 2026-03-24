@@ -9,8 +9,8 @@ import Toast from "react-native-toast-message";
 import { Product } from "@/constants/types";
 import { useCart } from "@/context/CartContext";
 import { useWishlist } from "@/context/WishlistContext";
-import { dummyProducts } from "@/assets/assets";
 import { COLORS } from "@/constants";
+import api from "@/constants/api";
 
 const { width } = Dimensions.get('window');
 
@@ -26,10 +26,19 @@ const ProductDetails = () => {
   const { toggleWishlist, isInWishlist } = useWishlist();
 
   const fetchProduct = async () => {
-    const found = dummyProducts.find((product) => product._id === id);
+    try {
+      const { data } = await api.get(`/product/${id}`);
+      setProduct(data.data)  
 
-    setProduct(found || null);
-    setLoading(false);
+    } catch (error: any) {
+      Toast.show({
+        type: 'error',
+        text1: 'Failed to get product',
+        text2: error.response?.data?.message || 'Something went wrong',
+      });
+    } finally{
+      setLoading(false);
+    }
   };
 
   useEffect(() => {

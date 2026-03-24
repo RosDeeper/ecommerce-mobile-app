@@ -4,6 +4,7 @@ import { useRouter } from "expo-router";
 
 import { HeaderProps } from "@/constants/types";
 import { COLORS } from "@/constants";
+import { useCart } from "@/context/CartContext";
 
 const Header = ({
   title,
@@ -15,7 +16,7 @@ const Header = ({
 }: HeaderProps) => {
   const router = useRouter();
   
-  const itemCount = 8;
+  const { itemCount } = useCart();
 
   return (
     <View className="flex-row items-center justify-between px-4 py-3 bg-white">
