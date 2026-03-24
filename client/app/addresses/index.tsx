@@ -1,14 +1,19 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import { Ionicons } from "@expo/vector-icons";
 import React, { useEffect, useState } from "react";
-import { ScrollView, Text, TouchableOpacity, View, Modal, TextInput, ActivityIndicator } from "react-native";
+import { ScrollView, Text, TouchableOpacity, View, Modal, TextInput, ActivityIndicator, Alert } from "react-native";
+import Toast from "react-native-toast-message";
 import { SafeAreaView } from "react-native-safe-area-context";
+import { useAuth } from "@clerk/expo";
 
 import Header from "@/components/Header";
 import { COLORS } from "@/constants";
 import type { Address } from "@/constants/types";
-import { dummyAddress } from "@/assets/assets";
+import api from "@/constants/api";
 
 const Addresses = () => {
+  const { getToken } = useAuth();
+
   const [addresses, setAddresses] = useState<Address[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [modalVisible, setModalVisible] = useState<boolean>(false);
@@ -32,8 +37,24 @@ const Addresses = () => {
   }, []);
 
   const fetchAddresses = async () => {
-    setAddresses(dummyAddress as any);
-    setLoading(false);
+    try {
+      const token = await getToken();
+
+      const { data } = await api.get('/address', {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+
+      setAddresses(data.data);
+
+    } catch (error: any) {
+      Toast.show({
+        type: 'error',
+        text1: 'Failed to fetch addresses',
+        text2: error.response?.data?.message || 'Something went wrong'
+      });
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleEditSearch = (item: Address) => {
@@ -50,13 +71,77 @@ const Addresses = () => {
   };
 
   const handleSaveAddress = async () => {
-    setModalVisible(false);
-    resetForm();
-    fetchAddresses();
+    if (!street || !city || !state || !zipCode || !country) {
+      Toast.show({
+        type: 'error',
+        text1: 'Missong fields',
+        text2: 'Please fill in all fields'
+      });
+
+      return;
+    }
+
+    setSubmitting(true);
+
+    try {
+      const token = await getToken();
+
+      const data = { 
+        type, street, city,
+        state, zipCode, country, isDefault
+      };
+
+      if (isEditing && editingId) {
+        await api.put(`/address/${editingId}`, data, {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+      } else {
+        await api.post('/address', data, {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+      }
+
+      setModalVisible(false);
+      resetForm();
+      fetchAddresses();
+
+    } catch (error: any) {
+      Toast.show({
+        type: 'error',
+        text1: 'Failed to save addresses',
+        text2: error.response?.data?.message || 'Something went wrong'
+      });
+    } finally{
+      setSubmitting(false);
+    }
   };
 
   const handleDeleteAddress = async (id: string) => {
+    Alert.alert('Delete Address', 'Are you sure to delete this address?', [
+      { text: 'Cancel', style: 'cancel' },
+      {
+        text: 'Delete',
+        style: 'destructive',
+        onPress: async () => {
+          try {
+            const token = await getToken();
 
+            await api.delete(`/address/${id}`, {
+              headers: { Authorization: `Bearer ${token}` }
+            })
+
+            fetchAddresses();
+            
+          } catch (error: any) {
+            Toast.show({
+              type: 'error',
+              text1: 'Failed to delete addresses',
+              text2: error.response?.data?.message || 'Something went wrong'
+            });
+          }
+        }
+      }
+    ]);
   };
 
   const resetForm = () => {

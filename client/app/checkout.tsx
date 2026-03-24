@@ -1,38 +1,59 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import { useRouter } from "expo-router";
 import { useEffect, useState } from "react";
 import Toast from "react-native-toast-message";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { ActivityIndicator, ScrollView, Text, TouchableOpacity, View } from "react-native";
+import { useAuth } from "@clerk/expo";
+import { Ionicons } from "@expo/vector-icons";
 
 import { useCart } from "@/context/CartContext";
 import { Address } from "@/constants/types";
-import { dummyAddress } from "@/assets/assets";
 import { COLORS } from "@/constants";
 import Header from "@/components/Header";
-import { Ionicons } from "@expo/vector-icons";
+import api from "@/constants/api";
 
 const Checkout = () => {
   const router = useRouter();
+  const { getToken } = useAuth();
+
   const [loading, setLoading] = useState<boolean>(false);
   const [pageloading, setPageLoading] = useState<boolean>(true);
   const [selectedAddress, setSelectedAddress] = useState<Address | null>(null);
   const [paymentMethod, setPaymentMethod] = useState<'cash' | 'stripe'>('cash');
 
-  const { cartTotal } = useCart();
+  const { cartTotal, clearCart } = useCart();
 
   const shipping = 2.0;
   const tax = 0;
   const total = cartTotal + shipping + tax;
 
   const fetchAddress = async () => {
-    const addrList = dummyAddress;
+    try {
+      const token = await getToken();
 
-    if (addrList.length > 0) {
-      const def = addrList.find((a) => a.isDefault) ?? addrList[0];
-      setSelectedAddress(def as Address);
+      const { data } = await api.get('/address', {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+
+      const addrList = data.data;
+      
+      if (addrList.length > 0) {
+        // Find default or first
+        const def = addrList.find((a: Address) => a.isDefault) || addrList[0];
+
+        setSelectedAddress(def);
+      }
+
+    } catch (error: any) {
+      Toast.show({
+        type: 'error',
+        text1: 'Failed to fetch addresses',
+        text2: error.response?.data?.message || 'Something went wrong'
+      });
+    } finally {
+      setPageLoading(false);
     }
-
-    setPageLoading(false);
   };
 
   const handlePlaceOrder = async () => {
@@ -53,7 +74,43 @@ const Checkout = () => {
       });
     }
     
-    router.replace('/orders');
+    setLoading(true);
+
+    try {
+      const payload = {
+        shippingAddress: selectedAddress,
+        notes: 'Placed via App',
+        paymentMethod: 'cash',
+      };
+
+      const token = await getToken();
+
+      const { data } = await api.post('/order', payload, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+
+      if (data.success) {
+        await clearCart();
+
+        Toast.show({
+          type: 'success',
+          text1: 'Order Placed',
+          text2: 'Your order has been placed!'
+        });
+
+        router.replace('/orders');
+      }
+
+    } catch (error: any) {
+      console.error(error);
+      Toast.show({
+        type: 'error',
+        text1: 'Failed to place order',
+        text2: error.response?.data?.message || 'Something went wrong'
+      });
+    } finally {
+      setLoading(false);
+    }
   };
 
   useEffect(() => {

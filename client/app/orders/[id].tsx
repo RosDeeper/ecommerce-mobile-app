@@ -3,22 +3,36 @@ import { Ionicons } from "@expo/vector-icons";
 import { useLocalSearchParams } from "expo-router";
 import React, { useEffect, useState } from "react";
 import { Image, ScrollView, Text, View, ActivityIndicator } from "react-native";
+import { useAuth } from "@clerk/expo";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 import Header from "@/components/Header";
 import { COLORS } from "@/constants";
 import type { Order, Product } from "@/constants/types";
-import { dummyOrders } from "@/assets/assets";
+import api from "@/constants/api";
 
 const OrderDetails = () => {
   const { id } = useLocalSearchParams();
+  const { getToken } = useAuth();
 
   const [order, setOrder] = useState<Order | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
 
   const fetchOrderDetails = async () => {
-    setOrder(dummyOrders.find((order) => order._id === id) as any);
-    setLoading(false);
+    try {
+      const token = await getToken();
+
+      const { data } = await api.get(`/order/${id}`, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+
+      setOrder(data.data);
+
+    } catch (error) {
+      console.error('Failed to fetch order detail: ', error);
+    } finally {
+      setLoading(false);
+    }
   };
 
   useEffect(() => {
